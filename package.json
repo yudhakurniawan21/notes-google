@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typeorm": "typeorm-ts-node-esm"
+    "typeorm": "typeorm-ts-node-esm",
+    "prisma:generate": "prisma generate",
+    "postinstall": "prisma generate",
+    "build": "next build"
   },
   "packageManager": "npm@10.8.1",
   "overrides": {
