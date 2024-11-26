@@ -9,7 +9,7 @@
     "typeorm": "typeorm-ts-node-esm",
     "prisma:generate": "prisma generate",
     "postinstall": "prisma generate",
-    "build": "next build"
+    "build": "prisma generate && next build"
   },
   "packageManager": "npm@10.8.1",
   "overrides": {
