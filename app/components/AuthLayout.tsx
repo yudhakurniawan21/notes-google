@@ -1,3 +1,5 @@
+import ThemeToggle from "./ThemeToggle";
+
 interface AuthLayoutProps {
   children: React.ReactNode;
   title: string;
@@ -17,6 +19,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title }) => {
           {children}
         </div>
       </div>
+      <ThemeToggle />
     </div>
   );
 };

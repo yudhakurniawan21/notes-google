@@ -2,6 +2,12 @@
 
 import { useSession, signIn } from "next-auth/react";
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+import { Flex, Paper, ScrollArea, Text } from "@mantine/core";
+
+const CustomEditor = dynamic(() => import("../components/CustomEditor"), {
+  ssr: false,
+});
 
 interface Note {
   id: number;
@@ -13,8 +19,14 @@ export default function Home() {
   const { data: session } = useSession();
   const [notes, setNotes] = useState([]);
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  // const [content, setContent] = useState("");
   const [status, setStatus] = useState("");
+  const [content, setContent] = useState<string>("");
+
+  const handleEditorChange = (value: string) => {
+    console.log("Editor value:", value);
+    setContent(value); // Perbarui state
+  };
 
   const fetchNotes = async () => {
     const response = await fetch("/api/notes");
@@ -75,46 +87,48 @@ export default function Home() {
 
   return (
     <main>
-      <div className="flex flex-row justify-between px-2">
-        <h1>Welcome, {session.user?.name}</h1>
-      </div>
-
-      <div className="flex flex-col gap-2 px-2 mt-4">
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Title"
-          className="input input-bordered w-full"
-        />
-        <textarea
-          className="textarea textarea-bordered"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Content"
-        ></textarea>
-        <button
-          className="btn btn-sm sm:btn-md md:btn-md lg:btn-lg"
-          onClick={addNote}
-        >
-          Add Note
-        </button>
-        {status === "warning" && AlertWarning()}
-      </div>
-
-      <div className="flex flex-col gap-2 px-2 mt-4 mb[70]">
-        {notes.map((note: Note) => (
-          <div className="card bg-primary text-primary-content" key={note.id}>
-            <div className="card-body">
-              <h2 className="card-title">{note.title}</h2>
-              <p>{note.content}</p>
-              {/* <div className="card-actions justify-end">
-                <button className="btn">Buy Now</button>
-              </div> */}
-            </div>
+      <Flex
+        mih="100vh"
+        justify="center"
+        // align="center"
+        direction="row"
+        wrap="wrap"
+      >
+        <div className="flex flex-col gap-2 px-2 w-full sm:w-[400] md:w-[500] lg:w-[700]">
+          <div className="flex flex-row justify-between px-2">
+            <h1>Welcome, {session.user?.name}</h1>
           </div>
-        ))}
-      </div>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Title"
+            className="input input-bordered w-full"
+          />
+          <CustomEditor onEditorChange={handleEditorChange} />
+          <button
+            className="btn btn-sm sm:btn-md md:btn-md lg:btn-lg"
+            onClick={addNote}
+          >
+            Add Note
+          </button>
+          {status === "warning" && AlertWarning()}
+          <ScrollArea h={350} py={"md"}>
+            {notes.map((note: Note) => (
+              <Paper withBorder radius="md" p={"md"} key={note.id}>
+                <Text size="xl" fw={500}>
+                  {note.title}
+                </Text>
+                <Text
+                  size="sm"
+                  mt="sm"
+                  dangerouslySetInnerHTML={{ __html: note.content }}
+                ></Text>
+              </Paper>
+            ))}
+          </ScrollArea>
+        </div>
+      </Flex>
     </main>
   );
 }

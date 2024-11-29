@@ -1,56 +1,156 @@
-import { auth, signOut } from "@/auth";
-import Image from "next/image";
-import React from "react";
+"use client";
 
-const Header = async () => {
-  const session = await auth();
+import { useState } from "react";
+import {
+  IconChevronDown,
+  IconHeart,
+  IconLogout,
+  IconMessage,
+  IconNotebook,
+  IconPlayerPause,
+  IconSettings,
+  IconStar,
+  IconSwitchHorizontal,
+  IconTrash,
+} from "@tabler/icons-react";
+import cx from "clsx";
+import {
+  Avatar,
+  Burger,
+  Container,
+  Group,
+  Menu,
+  Text,
+  UnstyledButton,
+  useMantineTheme,
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import classes from "./Header.module.css";
+import { signOut, useSession } from "next-auth/react";
+
+const Header = () => {
+  const { data: session } = useSession();
+  const theme = useMantineTheme();
+  const [opened, { toggle }] = useDisclosure(false);
+  const [userMenuOpened, setUserMenuOpened] = useState(false);
+
   return (
-    <div className="navbar bg-base-100">
-      <div className="flex-1">
-        <a className="btn btn-ghost text-xl">NOTES</a>
-      </div>
-      <div className="flex-none">
-        <div className="dropdown dropdown-end">
-          <div
-            tabIndex={0}
-            role="button"
-            className="btn btn-ghost btn-circle avatar"
+    <div className={classes.header}>
+      <Container className={classes.mainSection} size="md">
+        <Group justify="space-between">
+          <IconNotebook size={28} />
+
+          <Burger opened={opened} onClick={toggle} hiddenFrom="xs" size="sm" />
+
+          <Menu
+            width={260}
+            position="bottom-end"
+            transitionProps={{ transition: "pop-top-right" }}
+            onClose={() => setUserMenuOpened(false)}
+            onOpen={() => setUserMenuOpened(true)}
+            withinPortal
           >
-            <div className="w-10 rounded-full">
-              {session?.user?.image && (
-                <Image
-                  width={50}
-                  height={50}
-                  alt="Image of the user"
-                  src={session.user.image}
-                />
-              )}
-            </div>
-          </div>
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-          >
-            <li>
-              <a className="justify-between">
-                Profile
-                <span className="badge">New</span>
-              </a>
-            </li>
-            <li>
-              <a>Settings</a>
-            </li>
-            <li
-              onClick={async () => {
-                "use server";
-                await signOut();
-              }}
-            >
-              <a>Logout</a>
-            </li>
-          </ul>
-        </div>
-      </div>
+            <Menu.Target>
+              <UnstyledButton
+                className={cx(classes.user, {
+                  [classes.userActive]: userMenuOpened,
+                })}
+              >
+                <Group gap={7}>
+                  {session?.user && (
+                    // <Image
+                    //   width={50}
+                    //   height={50}
+                    //   alt="Image of the user"
+                    //   src={session.user.image}
+                    // />
+                    <>
+                      <Avatar
+                        src={session.user.image}
+                        alt={session.user.name ?? ""}
+                        radius="xl"
+                        size={20}
+                      />
+                      <Text fw={500} size="sm" lh={1} mr={3}>
+                        {session.user.name}
+                      </Text>
+                    </>
+                  )}
+                  <IconChevronDown size={12} stroke={1.5} />
+                </Group>
+              </UnstyledButton>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item
+                leftSection={
+                  <IconHeart
+                    size={16}
+                    color={theme.colors.red[6]}
+                    stroke={1.5}
+                  />
+                }
+              >
+                Liked posts
+              </Menu.Item>
+              <Menu.Item
+                leftSection={
+                  <IconStar
+                    size={16}
+                    color={theme.colors.yellow[6]}
+                    stroke={1.5}
+                  />
+                }
+              >
+                Saved posts
+              </Menu.Item>
+              <Menu.Item
+                leftSection={
+                  <IconMessage
+                    size={16}
+                    color={theme.colors.blue[6]}
+                    stroke={1.5}
+                  />
+                }
+              >
+                Your comments
+              </Menu.Item>
+
+              <Menu.Label>Settings</Menu.Label>
+              <Menu.Item leftSection={<IconSettings size={16} stroke={1.5} />}>
+                Account settings
+              </Menu.Item>
+              <Menu.Item
+                leftSection={<IconSwitchHorizontal size={16} stroke={1.5} />}
+              >
+                Change account
+              </Menu.Item>
+              <Menu.Item
+                leftSection={<IconLogout size={16} stroke={1.5} />}
+                onClick={async () => {
+                  await signOut();
+                }}
+              >
+                Logout
+              </Menu.Item>
+
+              <Menu.Divider />
+
+              <Menu.Label>Danger zone</Menu.Label>
+              <Menu.Item
+                leftSection={<IconPlayerPause size={16} stroke={1.5} />}
+              >
+                Pause subscription
+              </Menu.Item>
+              <Menu.Item
+                color="red"
+                leftSection={<IconTrash size={16} stroke={1.5} />}
+              >
+                Delete account
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        </Group>
+      </Container>
     </div>
   );
 };

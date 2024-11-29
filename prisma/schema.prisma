@@ -21,3 +21,14 @@ model Note {
   createdAt DateTime @default(now())
 }
 
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  password      String  // Nullable untuk login dengan Google
+  emailVerified DateTime? // Untuk verifikasi email
+  image         String?  // Opsional, untuk profil pengguna (Google login)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+

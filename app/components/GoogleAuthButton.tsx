@@ -13,7 +13,7 @@ export const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({ text }) => {
         await signIn("google", { redirectTo: "/" });
       }}
     >
-      <button className="my-1 w-full bg-white text-gray-700 hover:bg-slate-100">
+      <button className="my-1 w-full bg-white text-gray-700 hover:bg-slate-100 justify-center items-center flex h-10 rounded-md">
         <svg
           className="h-5 w-5 mr-2"
           viewBox="0 0 24 24"
