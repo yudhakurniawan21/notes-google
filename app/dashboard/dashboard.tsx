@@ -1,17 +1,19 @@
 "use client";
 
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import {
   Button,
   Flex,
+  LoadingOverlay,
   Paper,
   ScrollArea,
   Text,
   TextInput,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import { useDisclosure } from "@mantine/hooks";
 
 const CustomEditor = dynamic(() => import("../components/CustomEditor"), {
   ssr: false,
@@ -28,6 +30,7 @@ export default function Home() {
   const [notes, setNotes] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState<string>("");
+  const [visible, { toggle }] = useDisclosure(false);
 
   const handleEditorChange = (value: string) => {
     // console.log("Editor value:", value);
@@ -35,10 +38,12 @@ export default function Home() {
   };
 
   const fetchNotes = async () => {
+    toggle();
     const response = await fetch("/api/notes");
     if (response.ok) {
       const data = await response.json();
       setNotes(data);
+      toggle();
     }
   };
 
@@ -68,16 +73,8 @@ export default function Home() {
 
   useEffect(() => {
     if (session) fetchNotes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
-
-  if (!session) {
-    return (
-      <div>
-        <h1>Please Log In</h1>
-        <button onClick={() => signIn()}>Sign In with Google</button>
-      </div>
-    );
-  }
 
   return (
     <main>
@@ -90,7 +87,7 @@ export default function Home() {
       >
         <div className="flex flex-col gap-2 px-2 w-full sm:w-[400] md:w-[500] lg:w-[700]">
           <div className="flex flex-row justify-between px-2">
-            <Text>Welcome, {session.user?.name}</Text>
+            <Text>Welcome, {session?.user?.name}</Text>
           </div>
           <TextInput
             value={title}
@@ -101,9 +98,14 @@ export default function Home() {
           <Button variant="filled" onClick={addNote}>
             Add Note
           </Button>
-          <ScrollArea h="calc(100vh - 380px)" py={"md"}>
+          <LoadingOverlay
+            visible={visible}
+            zIndex={1000}
+            overlayProps={{ radius: "sm", blur: 2 }}
+          />
+          <ScrollArea h="calc(100vh - 380px)" py={"sm"}>
             {notes.map((note: Note) => (
-              <Paper withBorder radius="md" p={"md"} key={note.id}>
+              <Paper withBorder radius="md" p={"sm"} key={note.id} mb={"sm"}>
                 <Text size="xl" fw={500}>
                   {note.title}
                 </Text>

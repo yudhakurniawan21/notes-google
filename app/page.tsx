@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 
 export default async function page() {
   const session = await auth();
-  console.log(session);
 
   if (!session) {
     redirect("/login");

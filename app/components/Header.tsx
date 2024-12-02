@@ -81,7 +81,7 @@ const Header = () => {
           />
 
           <Menu
-            width={260}
+            width={200}
             position="bottom-start"
             transitionProps={{ transition: "pop-top-right" }}
             onClose={() => setUserMenuOpened(false)}
